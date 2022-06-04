@@ -46,7 +46,7 @@ async function createTables() {
         await client.query(`
             CREATE TABLE posts (
             id SERIAL PRIMARY KEY,
-            "authorID" INTEGER REFERENCES users(id) NOT NULL,
+            "authorId" INTEGER REFERENCES users(id) NOT NULL,
             title VARCHAR(255) NOT NULL,
             content TEXT NOT NULL,
             active BOOLEAN DEFAULT true
@@ -89,8 +89,31 @@ async function createInitialUsers() {
     }
 }
 
-async function createPosts() {
+async function createInitialPosts() {
+    try {
+        const [albert, sandra, glamgal] = await getAllUsers();
 
+        await createPost({
+            authorId: albert.id,
+            title: "First post",
+            content: "This is my first post. I hope I love writing blogs as much as I love writing them."
+        });
+
+        await createPost({
+            authorId: sandra.id,
+            title: "Sandra Sandra Sandra, Sandra",
+            content: "Sandra, sandra sandra Sandra sandra. Sandra, Sandra & Sandra sandra sandra sandra sandra sandra, Sandra."
+        });
+
+        await createPost({
+            authorId: glamgal.id,
+            title: "I'm Glamgal",
+            content: "G - L - A - M - O - R - O - U - S"
+        });
+
+    } catch (error) {
+        throw error;
+    }
 }
 
 async function rebuildDB() {
@@ -100,6 +123,7 @@ async function rebuildDB() {
         await dropTables();
         await createTables();
         await createInitialUsers();
+        await createInitialPosts();
     } catch (error) {
         console.error(error);
         throw error;
@@ -109,17 +133,31 @@ async function rebuildDB() {
 async function testDB() {
     try {
         console.log("Starting to test database...");
-  
-        const users = await getAllUsers();
+            const users = await getAllUsers();
         console.log("getAllUsers:", users);
 
         console.log("Calling updateUser on users[0]")
-        const updateUserResult = await updateUser(users[0].id, {
-            name: "Newname Sogood",
-            location: "Lesterville, KY"
-        });
+            const updateUserResult = await updateUser(users[0].id, {
+                name: "Newname Sogood",
+                location: "Lesterville, KY"
+            });
         console.log("Result: ", updateUserResult);
-  
+
+        console.log("Calling getAllPosts");
+            const posts = await getAllPosts();
+        console.log("Result: ", posts);
+
+        console.log("Calling updatePost on posts[0]")
+            const updatePostResult = await updatePost(posts[0].id, {
+                title: "New Title",
+                content: "Updated Content"
+            });
+        console.log("Result: ",  updatePostResult)
+
+        console.log("Calling getUserById with 1")
+            const albert = await getUserById(1);
+        console.log("Result: ", albert)
+
         console.log("Finished database tests!");
     } catch (error) {
         console.error("Error testing database!");

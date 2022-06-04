@@ -63,19 +63,19 @@ async function createPost({
 }) {
     try {
         const { rows: [post] } = await client.query(`
-            INSERT INTO posts(title, content)
+            INSERT INTO posts("authorId", title, content)
             VALUES ($1, $2, $3)
             RETURNING *;
         `, [authorId, title, content]);
   
-        return user;
+        return post;
 
     } catch (error) {
         throw error;
     }
 }
 
-async function updatePost(id, {title, content, active}) {
+async function updatePost(id, fields = {}) {
     const setString = Object.keys(fields).map(
         (key, index) => `"${ key }"=$${ index + 1 }`
         ).join(', ');
