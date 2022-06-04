@@ -142,6 +142,36 @@ async function getUserById(userId) {
     }
 }
 
+async function createTags(taglist) {
+    if (taglist.length === 0) {
+        return
+    }
+
+    const insertValues = taglist.map(
+        (_, index) => `$${index + 1}`).join('), (');
+    
+    const selectValues = tagList.map(
+        (_, index) => `$${index + 1}`).join(', ');
+    
+    try {
+        await client.query(`
+            INSERT INTO tags(name)
+            VALUES (${insertValues})
+            RETURNING *;
+        `, [selectValues]);
+
+        const { rows } = await client.query(`
+            SELECT *
+            FROM tags
+            WHERE name IN (${insertValues});
+        `);
+        
+        return rows;
+    } catch (error) {
+        throw error;
+    }
+}
+
 module.exports = {
     client,
     getAllUsers,
