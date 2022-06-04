@@ -112,12 +112,11 @@ async function getAllPosts() {
 
 async function getPostsByUser(userId) {
     try {
-        const { rows } = client.query(`
-            SELECT * FROM posts,
+        const { rows } = await client.query(`
+            SELECT * FROM posts
             WHERE "authorId"=${ userId };
-            `);
-
-            return rows;
+        `);
+        return rows;
     } catch (error) {
         throw error;
     }
@@ -125,16 +124,17 @@ async function getPostsByUser(userId) {
 
 async function getUserById(userId) {
     try {
-        const { rows } = client.query(`
-            SELECT * FROM users,
-            WHERE id = ${ userId };
+        const { rows } = await client.query(`
+            SELECT * FROM users
+            WHERE id=${ userId };
         `);
 
         if (!rows || !rows.length) {
             return null
         } else {
             delete rows.password;
-            rows.posts = await getPostsByUser(userId)
+            const userPosts = await getPostsByUser(userId);
+            rows[0].posts = userPosts
             return rows;
         }
     } catch (error) {

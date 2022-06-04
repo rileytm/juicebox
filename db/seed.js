@@ -133,8 +133,10 @@ async function rebuildDB() {
 async function testDB() {
     try {
         console.log("Starting to test database...");
+
+        console.log("Getting all users")
             const users = await getAllUsers();
-        console.log("getAllUsers:", users);
+        console.log("Results:", users);
 
         console.log("Calling updateUser on users[0]")
             const updateUserResult = await updateUser(users[0].id, {
