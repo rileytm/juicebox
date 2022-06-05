@@ -116,19 +116,22 @@ async function createInitialPosts() {
         await createPost({
             authorId: albert.id,
             title: "First post",
-            content: "This is my first post. I hope I love writing blogs as much as I love writing them."
+            content: "This is my first post. I hope I love writing blogs as much as I love writing them.",
+            tags: ["happy", "#youcandoanything"]
         });
 
         await createPost({
             authorId: sandra.id,
             title: "Sandra Sandra Sandra, Sandra",
-            content: "Sandra, sandra sandra Sandra sandra. Sandra, Sandra & Sandra sandra sandra sandra sandra sandra, Sandra."
+            content: "Sandra, sandra sandra Sandra sandra. Sandra, Sandra & Sandra sandra sandra sandra sandra sandra, Sandra.",
+            tags: ["#happy", "#worst-day-ever"]
         });
 
         await createPost({
             authorId: glamgal.id,
             title: "I'm Glamgal",
-            content: "G - L - A - M - O - R - O - U - S"
+            content: "G - L - A - M - O - R - O - U - S",
+            tags: ["#happy", "#youcandoanything", "#canmandoeverything"]
         });
 
     } catch (error) {
