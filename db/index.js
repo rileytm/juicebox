@@ -85,7 +85,6 @@ async function createPost({
 
 async function updatePost(postId, fields = {}) {
     const { tags } = fields;
-    console.log("update post tags ", tags);
     delete fields.tags;
   
     const setString = Object.keys(fields).map(
