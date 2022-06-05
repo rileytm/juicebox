@@ -37,12 +37,12 @@ async function createTables() {
 
         await client.query(`
             CREATE TABLE users (
-            id SERIAL PRIMARY KEY,
-            username VARCHAR(255) UNIQUE NOT NULL,
-            password VARCHAR(255) NOT NULL,
-            name VARCHAR(255) NOT NULL,
-            location VARCHAR(255) NOT NULL,
-            active BOOLEAN DEFAULT true
+                id SERIAL PRIMARY KEY,
+                username VARCHAR(255) UNIQUE NOT NULL,
+                password VARCHAR(255) NOT NULL,
+                name VARCHAR(255) NOT NULL,
+                location VARCHAR(255) NOT NULL,
+                active BOOLEAN DEFAULT true
             );
         `);
 
@@ -117,7 +117,7 @@ async function createInitialPosts() {
             authorId: albert.id,
             title: "First post",
             content: "This is my first post. I hope I love writing blogs as much as I love writing them.",
-            tags: ["happy", "#youcandoanything"]
+            tags: ["#happy", "#youcandoanything"]
         });
 
         await createPost({
@@ -139,28 +139,23 @@ async function createInitialPosts() {
     }
 }
 
-async function createInitialTags() {
+async function getPostsByTagName(tagName) {
     try {
-        console.log("Starting to create tags...");
-    
-        const [happy, sad, inspo, catman] = await createTags([
-            '#happy', 
-            '#worst-day-ever', 
-            '#youcandoanything',
-            '#catmandoeverything'
-        ]);
-    
-        const [postOne, postTwo, postThree] = await getAllPosts();
-
-        await addTagsToPost(postOne.id, [happy, inspo]);
-        await addTagsToPost(postTwo.id, [sad, inspo]);
-        await addTagsToPost(postThree.id, [happy, catman, inspo]);
-    
-        } catch (error) {
-        console.log("Error creating tags!");
+        const { rows: postIds } = await client.query(`
+            SELECT posts.id
+            FROM posts
+            JOIN post_tags ON posts.id=post_tags."postId"
+            JOIN tags ON tags.id=post_tags."tagId"
+            WHERE tags.name=$1;
+        `, [tagName]);
+  
+      return await Promise.all(postIds.map(
+            post => getPostById(post.id)
+      ));
+    } catch (error) {
         throw error;
     }
-  }
+}
 
 async function rebuildDB() {
     try {
@@ -170,7 +165,6 @@ async function rebuildDB() {
         await createTables();
         await createInitialUsers();
         await createInitialPosts();
-        await createInitialTags();
     } catch (error) {
         console.error(error);
         throw error;
@@ -200,12 +194,26 @@ async function testDB() {
             const onePost = await getPostById(1);
         console.log("Post is ", onePost);
 
+        console.log("Creating Tags")
+            const newTags = await createTags(["riley", "Thomas", "Meskill"])
+        console.log("Done making tags with ", newTags)
+
+        console.log("Calling getPostsByTagName with #happy");
+            const postsWithHappy = await getPostsByTagName("#happy");
+        console.log("Result:", postsWithHappy);
+
         console.log("Calling updatePost on posts[0]");
             const updatePostResult = await updatePost(posts[0].id, {
                 title: "New Title",
                 content: "Updated Content"
             });
         console.log("Result: ",  updatePostResult);
+
+        console.log("Calling updatePost on posts[1], only updating tags");
+            const updatePostTagsResult = await updatePost(posts[1].id, {
+                tags: ["#youcandoanything", "#redfish", "#bluefish"]
+            });
+        console.log("Result:", updatePostTagsResult);
 
         console.log("Calling getPostsByUser with 1");
             const usersPosts = await getPostsByUser(1);
