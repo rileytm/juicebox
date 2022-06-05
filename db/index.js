@@ -72,6 +72,10 @@ async function createPost({
         const tagList = await createTags(tags);
         //something here to create the post_tag relationship?
 
+        tagList.map((tag) => {
+            console.log(tag)
+            createPostTag(post.id, tag.id)})
+
         return post;
 
     } catch (error) {

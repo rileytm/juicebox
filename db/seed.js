@@ -174,6 +174,7 @@ async function rebuildDB() {
 async function testDB() {
     try {
         console.log("Starting to test database...");
+        console.log("X -------- X -------- X")
 
         console.log("Getting all users")
             const users = await getAllUsers();
